@@ -12,6 +12,21 @@ def load_room():
         room = json.load(f)
 load_room()
 
+#                                                       #生成的dict结构如下：
+#{
+#  str(uid):{                                           #创建者qq号
+#    "id": str(uid),                                    #房间编号，也是创建者的qq号，保留此项主要为了防止后期修改编号规则
+#    "game_name": title,                                #房间主标题
+#    "room_num": sub_title,                             #副标题
+#    "member_list": [                                   #已加入房间的人员
+#      str(qq_number_1),
+#      str(qq_number_2)
+#    ],
+#    "close_time": 1647204228 (int(time.time()))        #房间超时关闭时间戳
+#  }                                                    #可以自行根据需求修改结构，比如加入group_id用于群隔离，
+#}                                                      #加入max_member_nums用于限制房间人数等
+#
+
 def render_forward_msg(msg_list: list):
     forward_msg = []
     for msg in msg_list:
