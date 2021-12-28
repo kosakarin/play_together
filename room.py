@@ -1,8 +1,14 @@
 import json, os, time, hoshino
 from hoshino.typing import CQEvent
+from hoshino.config import NICKNAME
 from hoshino import Service
 
-sv = Service('room', enable_on_default=False, help_='')
+if type(NICKNAME) != str:
+    for NAME in NICKNAME:
+        NICKNAME = NAME
+        break
+
+sv = Service('room', enable_on_default=False, help_='发送 开车帮助 查看命令')
 
 json_path = os.path.join(os.path.dirname(__file__), 'room.json')
 room = {}
@@ -27,14 +33,14 @@ load_room()
 #}                                                      #加入max_member_nums用于限制房间人数等
 #
 
-def render_forward_msg(msg_list: list):
+def render_forward_msg(ev: CQEvent, msg_list: list):
     forward_msg = []
     for msg in msg_list:
         forward_msg.append({
             "type": "node",
             "data": {
-                "name": '某不愿透露姓名的小环奈', #修改这里可以让bot转发消息时显示其他人
-                "uin": '2779874515',
+                "name": str(NICKNAME), #修改这里可以让bot转发消息时显示其他人
+                "uin": str(ev.self_id),
                 "content": msg
             }
         })
@@ -146,7 +152,7 @@ async def search_room(bot, ev):
                 msg += member + '\n'
             msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
             msg_list.append(msg)
-        forward_msg = render_forward_msg(msg_list)
+        forward_msg = render_forward_msg(ev, msg_list)
         await hoshino.get_bot().send_group_forward_msg(group_id=ev.group_id, messages = forward_msg)
 
 @sv.on_rex('上车', only_to_me = True)
@@ -164,7 +170,7 @@ async def join_room(bot, ev):
                uid += i
     new_member = str(ev.user_id)
     if uid not in room:
-        await bot.send(ev, '没有这俩车哦')
+        await bot.send(ev, '没有这辆车哦')
         return
     if search_member(new_member):
         await bot.send(ev, '你已经在别人车上了哦，不可以脚踏两条船哦')
