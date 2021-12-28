@@ -82,9 +82,13 @@ async def help_info(bot, ev):
 async def create_room(bot, ev):
     global room
     args = ev.message.extract_plain_text().strip().split()
-    game_name = args[0]
-    room_num = str(args[1])
-    room_time = int(args[2]) if len(args) >= 3 else 30
+    try:
+        game_name = args[0]
+        room_num = str(args[1])
+        room_time = int(args[2]) if len(args) >= 3 else 30
+    except:
+        await bot.send(ev, '格式不对哦，@我发送开车帮助来看看怎么开车吧')
+        return
     uid = str(ev.user_id)
     gid = ev.group_id
     check_time()
@@ -108,6 +112,9 @@ async def search_room(bot, ev):
     check_time()
     uid = search_member(str(ev.user_id))
     room_nums = len(room)
+    if not room_nums:
+        await bot.send(ev, '现在车站没有车哦！')
+        return
     if uid:
         msg += '您当前所在房间id:' + str(room[uid]['id']) +'\n'
         msg += '游戏名称:' + str(room[uid]['game_name']) + '\n'
