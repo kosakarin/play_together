@@ -104,7 +104,9 @@ async def create_room(bot, ev):
         await bot.send(ev, '格式不对哦，@我发送开车帮助来看看怎么开车吧')
         return
     uid = str(ev.user_id)
-    host_name = ev.sender['card'] #将card修改为nickname可改为获得昵称，所有相同语句都需要更改
+    host_name = ev.sender['card']
+    if len(host_name) == 0: #如果群友没有设置群昵称，则获取个人昵称
+        host_name = ev.sender['nickname']
     check_time()
     if uid in room:
         await bot.send(ev, '你已经发过车了哦')
@@ -181,6 +183,8 @@ async def join_room(bot, ev):
                uid += i
     member_id = str(ev.user_id)
     member_name = ev.sender['card']
+    if len(member_name) == 0:
+        member_name = ev.sender['nickname']
     new_member = {'member_name':member_name , 'member_id': member_id}
     if uid not in room:
         await bot.send(ev, '没有这辆车哦')
@@ -207,6 +211,8 @@ async def exit_room(bot, ev):
         return
     member_id = str(ev.user_id)
     member_name = ev.sender['card']
+    if len(member_name) == 0:
+        member_name = ev.sender['nickname']
     uid = search_member(member_id)
     if not uid:
         await bot.send(ev, '你没有在任何车队中哦')
