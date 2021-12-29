@@ -22,11 +22,12 @@ load_room()
 #{
 #  str(uid):{                                           #创建者qq号
 #    "id": str(uid),                                    #房间编号，也是创建者的qq号，保留此项主要为了防止后期修改编号规则
+#    "name": str(name)                                  #房主昵称
 #    "game_name": title,                                #房间主标题
 #    "room_num": sub_title,                             #副标题
 #    "member_list": [                                   #已加入房间的人员
-#      str(qq_number_1),
-#      str(qq_number_2)
+#      {'member_name': nickname1 , 'member_id:' str(qq_number_1)},    #加入人员的昵称、qq号
+#      {'member_name': nickname2 , 'member_id': str(qq_number_2)}
 #    ],
 #    "close_time": 1647204228 (int(time.time()))        #房间超时关闭时间戳
 #  }                                                    #可以自行根据需求修改结构，比如加入group_id用于群隔离，
@@ -67,11 +68,18 @@ def save_room(): #存到本地，防止bot重启后数据丢失
 
 def search_member(member):
     for uid in room:
-        if member in room[uid]['member_list']:
-            return uid
+        for member_list in room[uid]['member_list']:
+            if member == member_list['member_id']:
+                return uid
     else:
         return 0
-
+    
+def delete_member(uid, member): #删除操作只匹配成员qq号，防止因为换群导致群名片更改
+    for member_list in room[uid]['member_list']:
+        if member == member_list['member_id']:
+            member_name = member_list['member_name']
+            room[uid]['member_list'].remove({'member_name': member_name , 'member_id': member})
+    
 @sv.on_fullmatch('开车帮助')
 async def help_info(bot, ev):
     msg = '''[@bot]开车 [房间名称] [房间密钥] [房间超时时间]
@@ -95,8 +103,8 @@ async def create_room(bot, ev):
     except:
         await bot.send(ev, '格式不对哦，@我发送开车帮助来看看怎么开车吧')
         return
+    name = ev.sender['card'] #将card修改为nickname可获得昵称，所有相同语句都需要更改
     uid = str(ev.user_id)
-    gid = ev.group_id
     check_time()
     if uid in room:
         await bot.send(ev, '你已经发过车了哦')
@@ -105,11 +113,12 @@ async def create_room(bot, ev):
         await bot.send(ev, '你已经在别人车上了哦，不可以脚踏两条船哦')
         return
     close_time = int(time.time()) + room_time * 60
-    room[uid] = {'id':uid, 'game_name':game_name, 'room_num':room_num, 'member_list':[uid], 'close_time':close_time}
+    room[uid] = {'id':uid, 'name': name, 'game_name':game_name, 'room_num':room_num, 'member_list':[{'member_name': name, 'member_id': uid}], 'close_time':close_time}
     save_room()
-    msg = f'''创建成功，房间id:{room[uid]['id']}
-游戏名称:{room[uid]['game_name']}
-超时时间：{room_time}'''
+    msg = f'''创建成功，房间id: {room[uid]['id']}
+游戏名称: {room[uid]['game_name']}
+房间号: {room[uid]['room_num']}
+超时时间: {room_time}'''
     await bot.send(ev, msg)
 
 @sv.on_fullmatch('查车', only_to_me = True)
@@ -127,29 +136,30 @@ async def search_room(bot, ev):
         msg += '房间号:' + str(room[uid]['room_num']) + '\n'
         msg += '房间内成员有:\n'
         for member in room[uid]['member_list']:
-            msg += member + '\n'
-        msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟\n\n'
+            msg += member['member_name'] + '(' + member['member_id'] + ')\n'
+        msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
         await bot.send(ev, msg.strip())
     elif room_nums <= 5:
         for uid in room:
-            msg += 'id:' + str(room[uid]['id']) +'\n'
+            msg += '房主昵称:' + str(room[uid]['name']) +'\n'
+            msg += '房间id:' + str(room[uid]['id']) +'\n'
             msg += '游戏名称:' + str(room[uid]['game_name']) + '\n'
             msg += '房间号:' + str(room[uid]['room_num']) + '\n'
             msg += '房间内成员有:\n'
             for member in room[uid]['member_list']:
-                msg += member + '\n'
-            msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟\n\n'
+                msg += member['member_name'] + '(' + member['member_id'] + ')\n'
+            msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
         await bot.send(ev, msg.strip())
     else:
         msg_list = []
         for uid in room:
-            msg = ''
-            msg += 'id:' + str(room[uid]['id']) +'\n'
+            msg += '房主昵称:' + str(room[uid]['name']) +'\n'
+            msg += '房间id:' + str(room[uid]['id']) +'\n'
             msg += '游戏名称:' +str(room[uid]['game_name']) + '\n'
             msg += '房间号:' + str(room[uid]['room_num']) + '\n'
             msg += '房间内成员有:\n'
             for member in room[uid]['member_list']:
-                msg += member + '\n'
+                msg += member['member_name'] + '(' + member['member_id'] + ')\n'
             msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
             msg_list.append(msg)
         forward_msg = render_forward_msg(ev, msg_list)
@@ -168,11 +178,13 @@ async def join_room(bot, ev):
         for i in m:
             if i.isdigit():
                uid += i
-    new_member = str(ev.user_id)
+    mid = str(ev.user_id)
+    name = ev.sender['card']
+    new_member = {'member_name':name , 'member_id': mid}
     if uid not in room:
         await bot.send(ev, '没有这辆车哦')
         return
-    if search_member(new_member):
+    if search_member(mid):
         await bot.send(ev, '你已经在别人车上了哦，不可以脚踏两条船哦')
         return
     room[uid]['member_list'].append(new_member)
@@ -180,10 +192,11 @@ async def join_room(bot, ev):
     if len(room[uid]['member_list']) >= 4:
         at_msg = ''
         for member in room[uid]['member_list']:
-            at_msg += f'[CQ:at,qq={member}],'
-        await bot.send(ev, f'''{at_msg} {new_member}已上车，当前车上已有{len(room[uid]['member_list'])}人''')
+            memid = member['member_id']
+            at_msg += f'[CQ:at,qq={memid}],'
+        await bot.send(ev, f'''{at_msg} {name}({mid})已上车，当前车上已有{len(room[uid]['member_list'])}人''')
     else:
-        await bot.send(ev, f'''{new_member}已上车，当前车上已有{len(room[uid]['member_list'])}人''')
+        await bot.send(ev, f'''{name}({mid})已上车，当前车上已有{len(room[uid]['member_list'])}人''')
         
 @sv.on_fullmatch('跳车', only_to_me = True)
 async def exit_room(bot, ev):
@@ -192,17 +205,18 @@ async def exit_room(bot, ev):
     if not room:
         return
     member = str(ev.user_id)
+    name = ev.sender['card']
     uid = search_member(member)
     if not uid:
         await bot.send(ev, '车队中没有你哦')
-    room[uid]['member_list'].remove(member)
+    delete_member(uid, member)
     save_room()
     n = len(room[uid]['member_list'])
     if not n:
         close_room(uid)
         await bot.send(ev, f'''车{uid}已解散''')
         return
-    await bot.send(ev, f'''{member}已下车，当前车上有{n}人''')
+    await bot.send(ev, f'''{name}({member})已下车，当前车上有{n}人''')
 
 @sv.on_fullmatch('解散', only_to_me = True)
 async def master_close_room(bot,ev):
