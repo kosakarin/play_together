@@ -133,37 +133,37 @@ async def search_room(bot, ev):
         await bot.send(ev, '现在车站没有车哦！')
         return
     if uid:
-        msg += '您当前所在房间编号:' + str(room[uid]['host_id']) +'\n'
-        msg += '房间名称:' + str(room[uid]['game_name']) + '\n'
-        msg += '房间密钥:' + str(room[uid]['room_num']) + '\n'
-        msg += '房间内成员有:\n'
+        msg += '您当前所在房间编号: ' + str(room[uid]['host_id']) +'\n'
+        msg += '房间名称: ' + str(room[uid]['game_name']) + '\n'
+        msg += '房间密钥: ' + str(room[uid]['room_num']) + '\n'
+        msg += '房间内成员有: \n'
         for member in room[uid]['member_list']:
             msg += '    ' + member['member_name'] + '(' + member['member_id'] + ')\n'
-        msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
+        msg += '房间自动解散剩余时间: ' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
         await bot.send(ev, msg.strip())
     elif room_nums <= 5:
         for uid in room:
-            msg += '房主群昵称:' + str(room[uid]['host_name']) +'\n'
-            msg += '房间编号:' + str(room[uid]['host_id']) +'\n'
-            msg += '房间名称:' + str(room[uid]['game_name']) + '\n'
-            msg += '房间密钥:' + str(room[uid]['room_num']) + '\n'
-            msg += '房间内成员有:\n'
+            msg += '房主群昵称: ' + str(room[uid]['host_name']) +'\n'
+            msg += '房间编号: ' + str(room[uid]['host_id']) +'\n'
+            msg += '房间名称: ' + str(room[uid]['game_name']) + '\n'
+            msg += '房间密钥: ' + str(room[uid]['room_num']) + '\n'
+            msg += '房间内成员有: \n'
             for member in room[uid]['member_list']:
                 msg += '    ' + member['member_name'] + '(' + member['member_id'] + ')\n'
-            msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟\n\n'
+            msg += '房间自动解散剩余时间: ' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟\n\n'
         await bot.send(ev, msg.strip())
     else:
         msg_list = []
         for uid in room:
             msg = ''
-            msg += '房主群昵称:' + str(room[uid]['host_name']) +'\n'
-            msg += '房间编号:' + str(room[uid]['host_id']) +'\n'
-            msg += '房间名称:' +str(room[uid]['game_name']) + '\n'
-            msg += '房间密钥:' + str(room[uid]['room_num']) + '\n'
-            msg += '房间内成员有:\n'
+            msg += '房主群昵称: ' + str(room[uid]['host_name']) +'\n'
+            msg += '房间编号: ' + str(room[uid]['host_id']) +'\n'
+            msg += '房间名称: ' +str(room[uid]['game_name']) + '\n'
+            msg += '房间密钥: ' + str(room[uid]['room_num']) + '\n'
+            msg += '房间内成员有: \n'
             for member in room[uid]['member_list']:
                 msg += '    ' + member['member_name'] + '(' + member['member_id'] + ')\n'
-            msg += '房间自动解散剩余时间:' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
+            msg += '房间自动解散剩余时间: ' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟'
             msg_list.append(msg)
         forward_msg = render_forward_msg(ev, msg_list)
         await hoshino.get_bot().send_group_forward_msg(group_id=ev.group_id, messages = forward_msg)
