@@ -1,6 +1,8 @@
 # play_together
 hoshino bot的快速组队插件
 
+感谢[@soap_spree](https://github.com/soapspree)协助完善本插件
+
 # 本插件有什么用处？
 
 你在群中想要和群友一起快乐雀魂，然而一直三缺一······ 你在群中想要加入刚刚群友开的黑车，然而他死活没回复你······不要担心！万能群聊bot来帮忙了！
