@@ -86,9 +86,11 @@ async def help_info(bot, ev):
 [房间名称]：任意字符，不限制长度
 [房间密钥]：房间加入方法，比如雀魂车建议为雀魂6位房间号，也可以是其他你需要补充的信息
 [房间超时时间]：（可选）该房间超过多长时间后自动关闭，单位分钟，默认30
+
 [@bot]查车 查看自己所在车的信息，如果没有上车则发送所有车信息
 [@bot]上车 [房间编号]或[@创建者] @的优先度更高 当上车后车上人数大于等于4人，会对所有车上人员发送@提醒
 [@bot]跳车 从自己当前所在车队中离开
+[@bot]发车 创建者用此指令一键@当前在车队中的全部成员
 [@bot]解散 创建者用此指令解散自己所创建的车队'''
     await bot.send(ev, msg)
 
@@ -120,7 +122,8 @@ async def create_room(bot, ev):
     msg = f'''发车成功！房间编号: {room[uid]['host_id']}
 房间名称: {room[uid]['game_name']}
 房间密钥: {room[uid]['room_num']}
-超时时间: {room_time}'''
+超时时间: {room_time}分钟
+没时间解释了快上车！'''
     await bot.send(ev, msg)
 
 @sv.on_fullmatch('查车', only_to_me = True)
@@ -225,8 +228,20 @@ async def exit_room(bot, ev):
         return
     await bot.send(ev, f'''{member_name}({member_id})已下车，当前车{uid}上还有{n}人''')
 
+@sv.on_fullmatch('发车', only_to_me = True)
+async def master_call_member(bot, ev):
+    uid = str(ev.user_id)
+    if uid in room:
+        at_msg = ''
+        for member in room[uid]['member_list']:
+            at_member_id = member['member_id']
+            at_msg += f'[CQ:at,qq={at_member_id}]'
+        await bot.send(ev, f'''到点了！{at_msg}''')
+    else:
+        await bot.send(ev, '你还没有发车哦')
+ 
 @sv.on_fullmatch('解散', only_to_me = True)
-async def master_close_room(bot,ev):
+async def master_close_room(bot, ev):
     uid = str(ev.user_id)
     if uid in room:
         close_room(uid)
