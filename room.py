@@ -50,7 +50,7 @@ def render_forward_msg(ev: CQEvent, msg_list: list):
 def check_time():
     now = int(time.time())
     if room:
-        for uid in room:
+        for uid in list(room):
             if room[uid]['close_time'] < now:
                 close_room(uid)
     else:
