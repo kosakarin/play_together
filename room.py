@@ -8,7 +8,7 @@ if type(NICKNAME) != str:
         NICKNAME = FIRSTNAME
         break
 
-sv = Service('room', enable_on_default=False, help_='发送 开车帮助 查看指令')
+sv = Service('play_together', enable_on_default=False, help_='发送 开车帮助 查看指令')
 
 json_path = os.path.join(os.path.dirname(__file__), 'room.json')
 room = {}
@@ -84,10 +84,10 @@ def delete_member(uid, member_id): #删除操作只通过qq号匹配成员，防
 @sv.on_fullmatch('开车帮助')
 async def help_info(bot, ev):
     msg = '''[@bot]开车 [房间名称] [房间密钥] [房间人数] [房间超时时间]
-[房间名称]：任意字符，不限制长度
-[房间密钥]：房间加入方法，比如雀魂车建议为雀魂6位房间号，也可以是其他你需要补充的信息
-[房间人数]：房间的最大成员数，设置为0则不限制，满员将自动发送@提醒
-[房间超时时间]：（可选）该房间超过多长时间后自动关闭，单位分钟，默认30
+--[房间名称]：任意字符，不限制长度
+--[房间密钥]：房间加入方法，比如雀魂车建议为雀魂6位房间号，也可以是其他你需要补充的信息
+--[房间人数]：房间的最大成员数，设置为0则不限制，满员将自动发送@提醒
+--[房间超时时间]：（可选）该房间超过多长时间后自动关闭，单位分钟，默认30
 
 [@bot]查车 查看自己所在车的信息，如果没有上车则发送所有车信息
 [@bot]上车 [房间编号]或[@创建者]，@的优先度更高
