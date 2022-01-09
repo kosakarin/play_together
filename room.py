@@ -260,7 +260,7 @@ async def master_call_member(bot, ev):
             at_msg += f'[CQ:at,qq={at_member_id}]'
         await bot.send(ev, f'''到点了！{at_msg}''')
     else:
-        await bot.send(ev, '你还没有发车哦')
+        await bot.send(ev, '你还没有开车哦')
  
 @sv.on_fullmatch('解散', only_to_me = True)
 async def master_close_room(bot, ev):
@@ -269,4 +269,4 @@ async def master_close_room(bot, ev):
         close_room(uid)
         await bot.send(ev, f'车队{uid}已解散')
     else:
-        await bot.send(ev, '你还没有发车哦')
+        await bot.send(ev, '你还没有开车哦')
