@@ -170,8 +170,8 @@ async def search_room(bot, ev):
             msg += '已加入的成员：\n'
             for member in room[uid]['member_list']:
                 msg += '    ' + member['member_name'] + '(' + member['member_id'] + ')\n'
-            if member['note']:
-                msg += '备注：' + member['note'] + '\n'
+                if member['note']:
+                    msg += '备注：' + member['note'] + '\n'
             msg += '房间自动解散剩余时间：' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟\n\n'
         await bot.send(ev, msg.strip())
     else:
@@ -188,8 +188,8 @@ async def search_room(bot, ev):
             msg += '已加入的成员：\n'
             for member in room[uid]['member_list']:
                 msg += '    ' + member['member_name'] + '(' + member['member_id'] + ')\n'
-            if member['note']:
-                msg += '备注：' + member['note'] + '\n'
+                if member['note']:
+                    msg += '备注：' + member['note'] + '\n'
             msg += '房间自动解散剩余时间：' + str((room[uid]['close_time'] - int(time.time())) // 60) + '分钟\n\n'
             msg_list.append(msg)
         forward_msg = render_forward_msg(ev, msg_list)
